@@ -1,6 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
-import { HttpError } from 'http-errors';
-import logger from './config/logger';
+import express from 'express';
 import { globalErrorHandler } from './common/middlewares/globalErrorHandler';
 const app = express();
 
@@ -14,22 +12,7 @@ app.get('/', (req, res) => {
 });
 
 // Global Error Handler - This should be the last middleware in the chain
+// It handles errors thrown by other middlewares
 app.use(globalErrorHandler);
-
-// We have replaced below code with globalErrorHandler
-// app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
-//     logger.error(err.message);
-//     const statusCode = err.statusCode || err.status || 500;
-//     res.status(statusCode).json({
-//         errors: [
-//             {
-//                 type: err.name,
-//                 msg: err.message,
-//                 path: '',
-//                 location: '',
-//             },
-//         ],
-//     });
-// });
 
 export default app;

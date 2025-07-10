@@ -1,5 +1,4 @@
 import winston from 'winston';
-import { Config } from '.'; // Import your application's configuration
 
 const logger = winston.createLogger({
     level: 'info', // Minimum log level
@@ -11,13 +10,13 @@ const logger = winston.createLogger({
             dirname: 'logs',
             filename: 'combined.log',
             level: 'info',
-            silent: Config.NODE_ENV === 'development', // Disable logs in the 'developement' environment
+            silent: process.env.NODE_ENV === 'development', // Disable logs in the 'developement' environment
         }),
         new winston.transports.File({
             dirname: 'logs',
             filename: 'error.log',
             level: 'error',
-            silent: Config.NODE_ENV === 'test',
+            silent: process.env.NODE_ENV === 'test',
         }),
         new winston.transports.Console({
             level: 'info',
