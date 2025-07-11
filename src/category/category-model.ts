@@ -1,25 +1,5 @@
 import mongoose from 'mongoose';
-
-// how will data look like
-export interface Category {
-    name: string;
-    priceConfiguration: PriceConfiguration;
-    attributes: Attributes[];
-}
-
-interface PriceConfiguration {
-    [Key: string]: {
-        priceType: 'base' | 'additional';
-        availableOptions: string[];
-    };
-}
-
-interface Attributes {
-    name: string;
-    widgetType: 'switch' | 'radio' | 'select';
-    defaultValue: string;
-    availableOptions: string[];
-}
+import { Attributes, Category, PriceConfiguration } from './category-types';
 
 // Mongoose model structure
 
