@@ -1,11 +1,14 @@
 import express from 'express';
 import { globalErrorHandler } from './common/middlewares/globalErrorHandler';
 import categoryRouter from './category/category-router';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
+
+app.use(cookieParser());
 
 // Define your routes and application logic here
 // Define a route
