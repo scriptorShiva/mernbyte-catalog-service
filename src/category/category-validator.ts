@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 
-const categoryValidator = [
+export const categoryCreateValidator = [
     body('name')
         .exists()
         .withMessage('Category name is required')
@@ -27,4 +27,27 @@ const categoryValidator = [
     body('attributes').exists().withMessage('attributes is required'),
 ];
 
-export default categoryValidator;
+export const categoryUpdateValidator = [
+    body('name')
+        .optional()
+        .isString()
+        .withMessage('Category name must be a string'),
+
+    body('priceConfiguration').optional(),
+
+    body('priceConfiguration.*.priceType')
+        .optional()
+        .custom((value: 'base' | 'additional') => {
+            const validKeys = ['base', 'additional'];
+            if (validKeys.includes(value)) {
+                return true;
+            }
+            throw new Error(
+                `${value} is invalid attribute for priceType. It must be one of ${validKeys.join(
+                    ', ',
+                )}`,
+            );
+        }),
+
+    body('attributes').optional(),
+];

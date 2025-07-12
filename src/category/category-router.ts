@@ -1,6 +1,9 @@
 import express from 'express';
 import { CategoryController } from './category-controller';
-import categoryValidator from './category-validator';
+import {
+    categoryCreateValidator,
+    categoryUpdateValidator,
+} from './category-validator';
 import { CategoryService } from './category-service';
 import Logger from '../config/logger';
 import { asyncErrorHandlerWrapper } from '../common/utils/asyncErrorHandlerWrapper';
@@ -19,8 +22,27 @@ router.post(
     '/',
     authenticate,
     canAccess([ROLES.ADMIN]),
-    categoryValidator,
+    categoryCreateValidator,
     asyncErrorHandlerWrapper(categoryController.create),
+);
+
+router.patch(
+    '/:id',
+    authenticate,
+    canAccess([ROLES.ADMIN]),
+    categoryUpdateValidator,
+    asyncErrorHandlerWrapper(categoryController.update),
+);
+
+router.get('/', asyncErrorHandlerWrapper(categoryController.getAll));
+
+router.get('/:id', asyncErrorHandlerWrapper(categoryController.getById));
+
+router.delete(
+    '/:id',
+    authenticate,
+    canAccess([ROLES.ADMIN]),
+    asyncErrorHandlerWrapper(categoryController.delete),
 );
 
 export default router;

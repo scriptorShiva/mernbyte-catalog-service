@@ -12,6 +12,10 @@ export class CategoryController {
         private logger: Logger,
     ) {
         this.create = this.create.bind(this);
+        this.update = this.update.bind(this);
+        this.getAll = this.getAll.bind(this);
+        this.getById = this.getById.bind(this);
+        this.delete = this.delete.bind(this);
     }
     async create(req: Request, res: Response, next: NextFunction) {
         // 1. get validation result : as we have used validation middleware
@@ -41,5 +45,40 @@ export class CategoryController {
         res.json({
             id: category._id,
         });
+    }
+
+    async update(req: Request, res: Response, next: NextFunction) {
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            return next(createHttpError(400, result.array()[0].msg));
+        }
+
+        const { id } = req.params;
+        const { name, priceConfiguration, attributes } = req.body as Category;
+
+        const updatedCategoryData = await this.categoryService.update(id, {
+            name,
+            priceConfiguration,
+            attributes,
+        });
+
+        res.json(updatedCategoryData);
+    }
+
+    async getAll(req: Request, res: Response) {
+        const categories = await this.categoryService.getAll();
+        res.json(categories);
+    }
+
+    async getById(req: Request, res: Response) {
+        const { id } = req.params;
+        const category = await this.categoryService.getById(id);
+        res.json(category);
+    }
+
+    async delete(req: Request, res: Response) {
+        const { id } = req.params;
+        const deletedCategory = await this.categoryService.delete(id);
+        res.json(deletedCategory);
     }
 }
