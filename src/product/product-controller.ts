@@ -45,7 +45,7 @@ export class ProductController {
 
         // image file
         const image = req.files!.image as UploadedFile;
-        const imageName = uuidV4() + '-' + image.name;
+        const imageName = uuidV4();
 
         await this.storage.upload({
             filename: imageName,

@@ -36,13 +36,13 @@ export const productCreateValidator = [
             throw new Error('Image must be a string');
         }
 
-        // if (!req.file) {
-        //     throw new Error('Image file is required');
-        // }
+        if (!req.files!.image) {
+            throw new Error('Image file is required');
+        }
 
-        // if (!req.file.mimetype.startsWith('image/')) {
-        //     throw new Error('Uploaded file must be an image');
-        // }
+        if (!req.files!.image.mimetype.startsWith('image/')) {
+            throw new Error('Uploaded file must be an image');
+        }
         return true;
     }),
 ];
@@ -77,8 +77,8 @@ export const productUpdateValidator = [
             throw new Error('Image must be a string');
         }
 
-        if (req.file && !req.file.mimetype.startsWith('image/')) {
-            throw new Error('Uploaded file must be an image');
+        if (!req.file) {
+            throw new Error('Image file is required');
         }
         return true;
     }),
