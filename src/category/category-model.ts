@@ -51,20 +51,23 @@ const AttributesSchema = new mongoose.Schema<Attributes>({
     },
 });
 
-const categorySchema = new mongoose.Schema<Category>({
-    name: {
-        type: String,
-        required: true,
+const categorySchema = new mongoose.Schema<Category>(
+    {
+        name: {
+            type: String,
+            required: true,
+        },
+        priceConfiguration: {
+            type: Map,
+            of: priceConfigurationSchema, // we want it {size : {priceType, availableOptions}} in this way.
+            required: true,
+        },
+        attributes: {
+            type: [AttributesSchema],
+            required: true,
+        },
     },
-    priceConfiguration: {
-        type: Map,
-        of: priceConfigurationSchema, // we want it {size : {priceType, availableOptions}} in this way.
-        required: true,
-    },
-    attributes: {
-        type: [AttributesSchema],
-        required: true,
-    },
-});
+    { timestamps: true },
+);
 
 export default mongoose.model('Category', categorySchema); // --> Collection will create in plural form.
