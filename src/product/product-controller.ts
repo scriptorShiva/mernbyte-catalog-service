@@ -8,6 +8,8 @@ import { Product } from './product-types';
 import { FileStorage } from '../common/types/storage';
 import { v4 as uuidV4 } from 'uuid';
 import { UploadedFile } from 'express-fileupload';
+import { AuthRequest } from '../common/types';
+import { ROLES } from '../common/constant';
 
 export class ProductController {
     // dependency injections for injecting the service. Now, whenever this controller is called, it will neet toinject the service
@@ -87,6 +89,22 @@ export class ProductController {
         }
 
         const { id } = req.params;
+
+        // check if tenant has access to the product
+        const product = await this.productService.getProductById(id);
+        if (!product) {
+            return next(createHttpError(404, 'Product not found'));
+        }
+
+        // if user is not admin, then check if tenant has access to the product
+        if ((req as AuthRequest).auth.role !== ROLES.ADMIN) {
+            const tenant = (req as AuthRequest).auth?.tenant;
+            // check if tenant has access to the product
+            if (product.tenantId !== String(tenant)) {
+                return next(createHttpError(403, 'Access denied'));
+            }
+        }
+
         const {
             name,
             description,
@@ -113,7 +131,6 @@ export class ProductController {
             await this.storage.delete(oldImage);
         }
 
-        console.log(name, 'nnn');
         const updatedProduct = await this.productService.updateProduct(id, {
             name,
             description,

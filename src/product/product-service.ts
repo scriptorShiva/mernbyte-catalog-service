@@ -30,4 +30,8 @@ export class ProductService {
 
         return product.image;
     }
+
+    async getProductById(id: string): Promise<Product | null> {
+        return await productModel.findOne({ _id: id });
+    }
 }

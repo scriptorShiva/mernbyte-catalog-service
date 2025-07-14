@@ -52,7 +52,7 @@ router.post(
 router.put(
     '/:id',
     authenticate,
-    canAccess([ROLES.ADMIN]),
+    canAccess([ROLES.ADMIN, ROLES.MANAGER]),
     fileUpload({
         limits: {
             fileSize: 5 * 1024 * 1024, // 5 MB limit
