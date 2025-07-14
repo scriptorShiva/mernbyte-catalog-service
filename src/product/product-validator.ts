@@ -72,14 +72,16 @@ export const productUpdateValidator = [
         .isString()
         .withMessage('categoryId must be a string'),
 
-    body('image').custom((value, { req }) => {
-        if (value && typeof value !== 'string') {
-            throw new Error('Image must be a string');
-        }
+    body('image')
+        .custom((value, { req }) => {
+            if (value && typeof value !== 'string') {
+                throw new Error('Image must be a string');
+            }
 
-        if (!req.file) {
-            throw new Error('Image file is required');
-        }
-        return true;
-    }),
+            if (!req.file) {
+                throw new Error('Image file is required');
+            }
+            return true;
+        })
+        .optional(),
 ];

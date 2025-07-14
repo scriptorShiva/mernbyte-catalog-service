@@ -49,4 +49,25 @@ router.post(
     asyncErrorHandlerWrapper(productController.create),
 );
 
+router.put(
+    '/:id',
+    authenticate,
+    canAccess([ROLES.ADMIN]),
+    fileUpload({
+        limits: {
+            fileSize: 5 * 1024 * 1024, // 5 MB limit
+        },
+        abortOnLimit: true, // Abort if the file size exceeds the limit
+        limitHandler: (_req, _res, next) => {
+            const error = createHttpError(
+                413,
+                'File size exceeds the limit of 5 MB',
+            );
+            next(error);
+        },
+    }),
+    productUpdateValidator,
+    asyncErrorHandlerWrapper(productController.update),
+);
+
 export default router;

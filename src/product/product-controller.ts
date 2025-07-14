@@ -72,4 +72,70 @@ export class ProductController {
 
         return res.json({ id: product._id });
     };
+
+    update = async (req: Request, res: Response, next: NextFunction) => {
+        // Update an existing product
+        // todo : image upload
+        // todo : save product to database
+        // todo : return updated product
+        // todo : handle errors
+
+        const result = validationResult(req);
+
+        if (!result.isEmpty()) {
+            return next(createHttpError(400, result.array()[0].msg));
+        }
+
+        const { id } = req.params;
+        const {
+            name,
+            description,
+            priceConfiguration,
+            attributes,
+            tenantId,
+            categoryId,
+            isPublish,
+        } = req.body as Product;
+
+        let newImageName: string | undefined;
+        if (req.files?.image) {
+            const oldImage = await this.productService.getProductImageUrl(id);
+
+            const image = req.files.image as UploadedFile;
+            newImageName = uuidV4();
+
+            await this.storage.upload({
+                filename: newImageName,
+                fileData: image.data.buffer,
+            });
+
+            // delete old image
+            await this.storage.delete(oldImage);
+        }
+
+        console.log(name, 'nnn');
+        const updatedProduct = await this.productService.updateProduct(id, {
+            name,
+            description,
+            priceConfiguration:
+                priceConfiguration && JSON.parse(priceConfiguration as string),
+            attributes: attributes && JSON.parse(attributes as string),
+            tenantId,
+            categoryId,
+            image: newImageName,
+            isPublish,
+        });
+
+        if (!updatedProduct) {
+            return next(createHttpError(404, 'Unable to update product'));
+        }
+
+        // log the update
+        this.logger.info(`Product updated with ID: ${updatedProduct.id}`, {
+            productId: updatedProduct.id,
+            tenantId: updatedProduct.tenantId,
+        });
+
+        return res.json(updatedProduct);
+    };
 }
