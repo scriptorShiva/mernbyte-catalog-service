@@ -12,8 +12,6 @@ import { canAccess } from '../common/middlewares/canAccess';
 import { ROLES } from '../common/constant';
 import fileUpload from 'express-fileupload'; // This is used for handling file uploads or multipart form data
 import { S3Storage } from '../common/services/S3Storage';
-import { abort } from 'process';
-import { create } from 'domain';
 import createHttpError from 'http-errors';
 
 const router = express.Router();
@@ -69,5 +67,7 @@ router.put(
     productUpdateValidator,
     asyncErrorHandlerWrapper(productController.update),
 );
+
+router.get('/', asyncErrorHandlerWrapper(productController.getAll));
 
 export default router;

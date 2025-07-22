@@ -1,5 +1,5 @@
 import productModel from './product-model';
-import { Product } from './product-types';
+import { Filter, Product } from './product-types';
 
 export class ProductService {
     // Define your service methods here
@@ -33,5 +33,58 @@ export class ProductService {
 
     async getProductById(id: string): Promise<Product | null> {
         return await productModel.findOne({ _id: id });
+    }
+
+    async getAllProducts(q?: string, filters: Filter = {}): Promise<Product[]> {
+        // here we have to implement different filters , search and pagination , sorting
+        // for all that in mongoose we have aggregate pipelines for that.. we have to prepare our query params
+
+        const searchQueryRegexp = new RegExp(q ?? '', 'i'); // 'i' for case-insensitive search
+
+        const matchQuery = {
+            ...filters,
+            name: searchQueryRegexp,
+        };
+
+        // aggregate pipeline : pipeling means it accepts array of objects.
+        const aggregate = productModel.aggregate([
+            {
+                $match: matchQuery,
+            },
+            // we want to get category relation
+            {
+                $lookup: {
+                    // from : this is the collection name
+                    from: 'categories',
+                    // localField : this is the field in product collection (Fk key)
+                    localField: 'categoryId',
+                    // foreignField : this is the field in category collection (PK key)
+                    foreignField: '_id',
+                    // as : this is the alias for category
+                    as: 'category',
+
+                    // pipeline : this is the pipeline for category ,
+                    pipeline: [
+                        {
+                            // $project : this is the projection operator
+                            $project: {
+                                // properties we want to project
+                                name: 1,
+                                description: 1,
+                                attributes: 1,
+                                priceConfiguration: 1,
+                            },
+                        },
+                    ],
+                },
+            },
+            {
+                // $unwind : this is the unwind operator : this is used to flatten the array
+                $unwind: '$category',
+            },
+        ]);
+
+        const result = await aggregate.exec();
+        return result as Product[];
     }
 }

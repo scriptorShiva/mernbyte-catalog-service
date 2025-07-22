@@ -4,12 +4,13 @@ import createHttpError from 'http-errors';
 
 import { Logger } from 'winston';
 import { ProductService } from './product-service';
-import { Product } from './product-types';
+import { Filter, Product } from './product-types';
 import { FileStorage } from '../common/types/storage';
 import { v4 as uuidV4 } from 'uuid';
 import { UploadedFile } from 'express-fileupload';
 import { AuthRequest } from '../common/types';
 import { ROLES } from '../common/constant';
+import mongoose from 'mongoose';
 
 export class ProductController {
     // dependency injections for injecting the service. Now, whenever this controller is called, it will neet toinject the service
@@ -154,5 +155,42 @@ export class ProductController {
         });
 
         return res.json(updatedProduct);
+    };
+
+    getAll = async (req: Request, res: Response, next: NextFunction) => {
+        const { q, tenantId, categoryId, isPublish } = req.query as {
+            q?: string;
+            tenantId?: string;
+            categoryId?: string;
+            isPublish?: string;
+        };
+
+        const filters: Filter = {};
+
+        // As from query params we get boolean as string
+        if (isPublish == 'true') {
+            filters.isPublish = true;
+        }
+
+        if (tenantId) {
+            filters.tenantId = tenantId;
+        }
+
+        if (categoryId && mongoose.Types.ObjectId.isValid(categoryId)) {
+            // in filter we need to convert categoryId to ObjectId to get the products
+            // this is because we are storing categoryId as ObjectId in the database
+            // and we need to convert it to ObjectId to filter the products
+            // if categoryId is not valid ObjectId, then we will not filter by categoryId
+            filters.categoryId = new mongoose.Types.ObjectId(
+                categoryId as string,
+            );
+        }
+
+        const products = await this.productService.getAllProducts(
+            q as string,
+            filters,
+        );
+
+        return res.json(products);
     };
 }
