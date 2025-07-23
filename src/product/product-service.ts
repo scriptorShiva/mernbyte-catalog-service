@@ -1,6 +1,6 @@
+import { paginationLabels } from '../config/pagination';
 import productModel from './product-model';
-import { Filter, Product } from './product-types';
-
+import { Filter, PaginateQuery, Product } from './product-types';
 export class ProductService {
     // Define your service methods here
 
@@ -35,7 +35,11 @@ export class ProductService {
         return await productModel.findOne({ _id: id });
     }
 
-    async getAllProducts(q?: string, filters: Filter = {}): Promise<Product[]> {
+    async getAllProducts(
+        q?: string,
+        filters: Filter = {},
+        paginateQuery: PaginateQuery = {},
+    ) {
         // here we have to implement different filters , search and pagination , sorting
         // for all that in mongoose we have aggregate pipelines for that.. we have to prepare our query params
 
@@ -84,7 +88,14 @@ export class ProductService {
             },
         ]);
 
-        const result = await aggregate.exec();
-        return result as Product[];
+        // With Pagination we will not return this in this way
+        // const result = await aggregate.exec();
+        // return result as Product[];
+
+        // With Pagination we will return this way.
+        return productModel.aggregatePaginate(aggregate, {
+            ...paginateQuery,
+            customLabels: paginationLabels,
+        });
     }
 }

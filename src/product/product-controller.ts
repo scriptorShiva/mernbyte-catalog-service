@@ -189,6 +189,10 @@ export class ProductController {
         const products = await this.productService.getAllProducts(
             q as string,
             filters,
+            {
+                page: req.query.page ? Number(req.query.page) : 1,
+                limit: req.query.limit ? Number(req.query.limit) : 10,
+            },
         );
 
         return res.json(products);

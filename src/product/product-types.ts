@@ -27,3 +27,8 @@ export type Filter = {
     categoryId?: mongoose.Types.ObjectId;
     isPublish?: boolean;
 };
+
+export type PaginateQuery = {
+    page?: number;
+    limit?: number;
+};
