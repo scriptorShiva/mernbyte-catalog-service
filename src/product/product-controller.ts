@@ -195,6 +195,15 @@ export class ProductController {
             },
         );
 
+        // add image url in products from storage service
+        if (!products.data || !Array.isArray(products.data)) {
+            return res.json({ ...products, data: [] });
+        }
+
+        products.data.forEach((product) => {
+            product.imageUrl = this.storage.getObjectUri(product.image);
+        });
+
         return res.json(products);
     };
 }
