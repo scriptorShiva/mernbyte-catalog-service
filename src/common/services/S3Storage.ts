@@ -35,7 +35,6 @@ export class S3Storage implements FileStorage {
         try {
             await this.client.send(new PutObjectCommand(objParams));
         } catch (error) {
-            console.error('Error uploading file to S3:', error);
             throw new Error('File upload failed');
         }
     }
@@ -50,7 +49,6 @@ export class S3Storage implements FileStorage {
         try {
             await this.client.send(new DeleteObjectCommand(deleteParams));
         } catch (error) {
-            console.error('Error deleting file from S3:', error);
             throw new Error('File deletion failed');
         }
     }
