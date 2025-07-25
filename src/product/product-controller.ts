@@ -23,10 +23,6 @@ export class ProductController {
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         // Create a new product
-        // todo : image upload
-        // todo : save product to database
-        // todo : return created product
-        // todo : handle errors
 
         // 1. get validation result : as we have used validation middleware
         const result = validationResult(req);
@@ -78,11 +74,6 @@ export class ProductController {
 
     update = async (req: Request, res: Response, next: NextFunction) => {
         // Update an existing product
-        // todo : image upload
-        // todo : save product to database
-        // todo : return updated product
-        // todo : handle errors
-
         const result = validationResult(req);
 
         if (!result.isEmpty()) {
@@ -157,7 +148,7 @@ export class ProductController {
         return res.json(updatedProduct);
     };
 
-    getAll = async (req: Request, res: Response, next: NextFunction) => {
+    getAll = async (req: Request, res: Response) => {
         const { q, tenantId, categoryId, isPublish } = req.query as {
             q?: string;
             tenantId?: string;
@@ -200,10 +191,28 @@ export class ProductController {
             return res.json({ ...products, data: [] });
         }
 
-        products.data.forEach((product) => {
+        products.data.forEach((product: Product) => {
             product.imageUrl = this.storage.getObjectUri(product.image);
         });
 
         return res.json(products);
+    };
+
+    getById = async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const product = await this.productService.getProductById(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        return res.json(product);
+    };
+
+    delete = async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const deletedProduct = await this.productService.deleteProduct(id);
+        if (!deletedProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        return res.json(deletedProduct);
     };
 }

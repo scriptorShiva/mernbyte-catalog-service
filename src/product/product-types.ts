@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 export interface Product {
+    [x: string]: string;
     name: string;
     description: string;
     priceConfiguration: string;
@@ -8,7 +9,6 @@ export interface Product {
     tenantId: string;
     categoryId: string;
     image: string;
-    isPublish?: boolean;
 }
 
 export interface ProductUpdate {
@@ -18,7 +18,7 @@ export interface ProductUpdate {
         basePrice?: number;
         additionalPrices?: { type: string; price: number }[];
     };
-    attributes?: Record<string, any>;
+    attributes?: string;
     image?: string;
 }
 

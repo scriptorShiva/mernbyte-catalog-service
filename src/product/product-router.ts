@@ -70,4 +70,13 @@ router.put(
 
 router.get('/', asyncErrorHandlerWrapper(productController.getAll));
 
+router.get('/:id', asyncErrorHandlerWrapper(productController.getById));
+
+router.delete(
+    '/:id',
+    authenticate,
+    canAccess([ROLES.ADMIN, ROLES.MANAGER]),
+    asyncErrorHandlerWrapper(productController.delete),
+);
+
 export default router;

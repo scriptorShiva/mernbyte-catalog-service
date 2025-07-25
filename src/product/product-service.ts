@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { paginationLabels } from '../config/pagination';
 import productModel from './product-model';
 import { Filter, PaginateQuery, Product } from './product-types';
+import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
+
 export class ProductService {
     // Define your service methods here
 
@@ -97,5 +100,10 @@ export class ProductService {
             ...paginateQuery,
             customLabels: paginationLabels,
         });
+    }
+
+    async deleteProduct(id: string) {
+        const deletedProduct = await productModel.findByIdAndDelete(id);
+        return deletedProduct;
     }
 }
