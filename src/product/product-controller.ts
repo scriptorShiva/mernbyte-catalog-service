@@ -39,7 +39,7 @@ export class ProductController {
             attributes,
             tenantId,
             categoryId,
-            isPublish,
+            isPublished,
         } = req.body as Product;
 
         // image file
@@ -48,7 +48,7 @@ export class ProductController {
 
         await this.storage.upload({
             filename: imageName,
-            fileData: image.data.buffer,
+            fileData: image.data.buffer as ArrayBuffer,
         });
 
         // service
@@ -60,7 +60,7 @@ export class ProductController {
             tenantId,
             categoryId,
             image: imageName,
-            isPublish,
+            isPublished,
         });
 
         // log the creation
@@ -104,7 +104,7 @@ export class ProductController {
             attributes,
             tenantId,
             categoryId,
-            isPublish,
+            isPublished,
         } = req.body as Product;
 
         let newImageName: string | undefined;
@@ -116,7 +116,7 @@ export class ProductController {
 
             await this.storage.upload({
                 filename: newImageName,
-                fileData: image.data.buffer,
+                fileData: image.data.buffer as ArrayBuffer,
             });
 
             // delete old image
@@ -132,7 +132,7 @@ export class ProductController {
             tenantId,
             categoryId,
             image: newImageName,
-            isPublish,
+            isPublished,
         });
 
         if (!updatedProduct) {
@@ -149,18 +149,18 @@ export class ProductController {
     };
 
     getAll = async (req: Request, res: Response) => {
-        const { q, tenantId, categoryId, isPublish } = req.query as {
+        const { q, tenantId, categoryId, isPublished } = req.query as {
             q?: string;
             tenantId?: string;
             categoryId?: string;
-            isPublish?: string;
+            isPublished?: string;
         };
 
         const filters: Filter = {};
 
         // As from query params we get boolean as string
-        if (isPublish == 'true') {
-            filters.isPublish = true;
+        if (isPublished == 'true') {
+            filters.isPublished = true;
         }
 
         if (tenantId) {

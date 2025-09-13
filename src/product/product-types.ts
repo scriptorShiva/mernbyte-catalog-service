@@ -25,7 +25,7 @@ export interface ProductUpdate {
 export type Filter = {
     tenantId?: string;
     categoryId?: mongoose.Types.ObjectId;
-    isPublish?: boolean;
+    isPublished?: boolean;
 };
 
 export type PaginateQuery = {
