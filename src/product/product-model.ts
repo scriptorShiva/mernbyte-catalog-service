@@ -53,6 +53,12 @@ const productSchema = new mongoose.Schema(
             required: false,
             default: false,
         },
+        toppings: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Topping', // reference to the Topping collection
+            },
+        ],
     },
     { timestamps: true },
 );

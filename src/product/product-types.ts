@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 
 export interface Product {
-    [x: string]: string;
     name: string;
     description: string;
     priceConfiguration: string;
@@ -9,6 +9,9 @@ export interface Product {
     tenantId: string;
     categoryId: string;
     image: string;
+    toppings?: Types.ObjectId[]; // Array of topping IDs
+    isPublished?: boolean;
+    imageUrl?: string;
 }
 
 export interface ProductUpdate {

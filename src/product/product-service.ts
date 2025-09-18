@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import mongoose from 'mongoose';
 import { paginationLabels } from '../config/pagination';
 import productModel from './product-model';
 import { Filter, PaginateQuery, Product } from './product-types';
@@ -35,7 +36,7 @@ export class ProductService {
     }
 
     async getProductById(id: string): Promise<Product | null> {
-        return await productModel.findOne({ _id: id });
+        return await productModel.findOne({ _id: id }).populate('toppings');
     }
 
     async getAllProducts(

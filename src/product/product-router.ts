@@ -5,6 +5,7 @@ import {
     productUpdateValidator,
 } from './product-validator';
 import { ProductService } from './product-service';
+import { ToppingService } from '../toppings/topping-service';
 import Logger from '../config/logger';
 import { asyncErrorHandlerWrapper } from '../common/utils/asyncErrorHandlerWrapper';
 import authenticate from '../common/middlewares/authenticate';
@@ -18,10 +19,12 @@ const router = express.Router();
 
 // dependency injection
 const productService = new ProductService();
+const toppingService = new ToppingService();
 const s3Storage = new S3Storage();
 
 const productController = new ProductController(
     productService,
+    toppingService,
     Logger,
     s3Storage,
 );

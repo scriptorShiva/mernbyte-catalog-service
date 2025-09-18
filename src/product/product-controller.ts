@@ -11,11 +11,14 @@ import { UploadedFile } from 'express-fileupload';
 import { AuthRequest } from '../common/types';
 import { ROLES } from '../common/constant';
 import mongoose from 'mongoose';
+import { ToppingService } from '../toppings/topping-service';
+import { Topping } from '../toppings/topping-types';
 
 export class ProductController {
     // dependency injections for injecting the service. Now, whenever this controller is called, it will neet toinject the service
     constructor(
         private productService: ProductService,
+        private toppingService: ToppingService, //  inject topping service
         private logger: Logger,
         // from SOLID principles, this is inversion principle
         private storage: FileStorage,
@@ -40,6 +43,7 @@ export class ProductController {
             tenantId,
             categoryId,
             isPublished,
+            toppings,
         } = req.body as Product;
 
         // image file
@@ -51,6 +55,22 @@ export class ProductController {
             fileData: image.data.buffer as ArrayBuffer,
         });
 
+        // check if toppings exists
+        // validate toppings is from this tenant itself.
+        // also I am exporting it form tenant service because this artitecture is decoupled.
+        //Your product controller does not know anything about toppings. It has no knowledge of how toppings are stored.
+        // Harder to change topping logic later (e.g., caching, business rules). if we use model here, to use that method
+        if (toppings && toppings.length > 0) {
+            const validToppings =
+                await this.toppingService.validateTenantToppings(
+                    toppings,
+                    tenantId,
+                );
+            if (!validToppings) {
+                return next(createHttpError(400, 'Invalid toppings selected'));
+            }
+        }
+
         // service
         const product = await this.productService.createProduct({
             name,
@@ -61,6 +81,7 @@ export class ProductController {
             categoryId,
             image: imageName,
             isPublished,
+            toppings,
         });
 
         // log the creation
@@ -105,6 +126,7 @@ export class ProductController {
             tenantId,
             categoryId,
             isPublished,
+            toppings,
         } = req.body as Product;
 
         let newImageName: string | undefined;
@@ -123,6 +145,36 @@ export class ProductController {
             await this.storage.delete(oldImage);
         }
 
+        let mergedToppings: string[] | undefined;
+        if (toppings) {
+            const validToppings =
+                await this.toppingService.validateTenantToppings(
+                    toppings,
+                    tenantId,
+                );
+
+            if (!validToppings) {
+                return next(
+                    createHttpError(
+                        400,
+                        'Some toppings are invalid or not allowed',
+                    ),
+                );
+            }
+
+            // merge new toppings with existing ones
+            // using set to avoid duplicates
+            const existingtoppings = (product.toppings ?? []).map((t) =>
+                t.toString(),
+            );
+            mergedToppings = [
+                ...new Set([
+                    ...existingtoppings,
+                    ...toppings.map((t) => t.toString()),
+                ]),
+            ];
+        }
+
         const updatedProduct = await this.productService.updateProduct(id, {
             name,
             description,
@@ -134,6 +186,10 @@ export class ProductController {
             image: newImageName,
             isPublished,
         });
+
+        if (mergedToppings) {
+            updatedProduct.toppings = mergedToppings;
+        }
 
         if (!updatedProduct) {
             return next(createHttpError(404, 'Unable to update product'));
@@ -201,9 +257,22 @@ export class ProductController {
     getById = async (req: Request, res: Response) => {
         const { id } = req.params;
         const product = await this.productService.getProductById(id);
+
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
+
+        // After populate, toppings is actually an array of Topping documents
+        if (product.toppings && product.toppings.length > 0) {
+            product.toppings.forEach((topping) => {
+                // Type narrowing: only run if it's a populated Topping
+                if (typeof topping !== 'string' && '_id' in topping) {
+                    const t = topping as unknown as Topping;
+                    t.image = this.storage.getObjectUri(t.image);
+                }
+            });
+        }
+
         return res.json(product);
     };
 
