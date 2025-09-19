@@ -251,6 +251,22 @@ export class ProductController {
             product.imageUrl = this.storage.getObjectUri(product.image);
         });
 
+        // add image url in toppings
+        products.data.forEach((product: Product) => {
+            product.imageUrl = this.storage.getObjectUri(product.image);
+
+            // Add image URL in toppings if they exist
+            if (product.toppings && product.toppings.length > 0) {
+                product.toppings.forEach((topping) => {
+                    // Type narrowing: only run if it's a populated Topping
+                    if (typeof topping !== 'string' && '_id' in topping) {
+                        const t = topping as unknown as Topping;
+                        t.image = this.storage.getObjectUri(t.image);
+                    }
+                });
+            }
+        });
+
         return res.json(products);
     };
 

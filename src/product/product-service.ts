@@ -90,6 +90,18 @@ export class ProductService {
                 // $unwind : this is the unwind operator : this is used to flatten the array
                 $unwind: '$category',
             },
+            {
+                $lookup: {
+                    // from : this is the collection name
+                    from: 'toppings',
+                    // localField : this is the field in product collection (Fk key)
+                    localField: 'toppings',
+                    // foreignField : this is the field in topping collection (PK key)
+                    foreignField: '_id',
+                    // as : this is the alias for topping
+                    as: 'toppings',
+                },
+            },
         ]);
 
         // With Pagination we will not return this in this way
